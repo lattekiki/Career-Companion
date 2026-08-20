@@ -7,3 +7,4 @@ bcrypt
 sqlalchemy
 psycopg2-binary
 python-docx
+reportlab
