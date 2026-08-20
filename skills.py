@@ -4,6 +4,8 @@ import html
 import streamlit as st
 from langchain_core.messages import HumanMessage
 
+from app import go_to_page
+
 
 def _clean(value, limit=700):
     return re.sub(r"\s+", " ", str(value or "")).strip()[:limit]
@@ -276,5 +278,5 @@ def render_skills_page(profile, llm=None):
                     }
                 )
                 st.session_state.nav_page = "💬 Career Companion"
-                st.session_state.page_radio = "💬 Career Companion"
+                go_to_page("💬 Career Companion")
                 st.rerun()
