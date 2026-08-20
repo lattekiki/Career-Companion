@@ -9,3 +9,4 @@ psycopg2-binary
 python-docx
 reportlab
 beautifulsoup4
+audio-recorder-streamlit
