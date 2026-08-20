@@ -33,15 +33,16 @@ load_dotenv()
 
 def get_database_url():
     """Safely fetch DATABASE_URL from .env or st.secrets."""
-
     url = os.getenv("DATABASE_URL")
-
     if not url:
         try:
-            url = st.secrets.get("DATABASE_URL")
-        except Exception:
+            # st.secrets is a mapping; check if key exists
+            if "DATABASE_URL" in st.secrets:
+                url = st.secrets["DATABASE_URL"]
+        except Exception as e:
+            print(f"DEBUG: Error accessing st.secrets: {e}")
             url = None
-
+            
     return url
 
 
