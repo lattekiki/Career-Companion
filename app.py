@@ -418,7 +418,7 @@ def get_llm():
 llm = get_llm()
 
 # ============================================================
-# SESSION STATE
+# SESSION STATE INITIALIZATION (Robust Defaults)
 # ============================================================
 
 if "nav_page" not in st.session_state:
@@ -430,7 +430,7 @@ if "page_radio" not in st.session_state:
 if "pending_nav_page" not in st.session_state:
     st.session_state.pending_nav_page = None
 
-# Load persistent chat history from DB or set default greeting
+# Ensure chat_messages is always initialized before rendering components
 if "chat_messages" not in st.session_state:
     db_history = load_chat_history(USER_ID)
     if db_history:
@@ -460,6 +460,7 @@ if "emotional_label" not in st.session_state:
 
 def go_to_page(page_name):
     st.session_state.pending_nav_page = page_name
+    st.session_state.page_radio = page_name
     st.rerun()
 
 # ============================================================
@@ -502,7 +503,7 @@ def analyze_burnout_and_sentiment(text, chat_history=None):
         "i can't do this anymore", "i cannot do this anymore", "i want to give up",
         "i've given up", "i have given up", "i feel like giving up", "nothing is working",
         "i feel completely exhausted", "i am completely exhausted", "i'm completely exhausted",
-        "i'm overwhelmed", "i am overwhelmed", "i feel overwhelmed", "i can't cope",
+        "i''m overwhelmed", "i am overwhelmed", "i feel overwhelmed", "i can't cope",
         "i cannot cope", "i feel stuck and hopeless",
     ]
 
@@ -858,7 +859,6 @@ if st.session_state.nav_page == "🍀 My Journey":
 
                 if st.button("Explore this opportunity →", key="journey_explore_job", use_container_width=True):
                     go_to_page("💼 Job Matches")
-                    st.rerun()
 
         else:
             with st.container(border=True):
@@ -867,7 +867,6 @@ if st.session_state.nav_page == "🍀 My Journey":
 
                 if st.button("Talk to your Companion →", key="journey_talk", use_container_width=True):
                     go_to_page("💬 Career Companion")
-                    st.rerun()
 
         st.write("")
         st.markdown('<div class="section-eyebrow">Your tools</div>', unsafe_allow_html=True)
@@ -879,7 +878,6 @@ if st.session_state.nav_page == "🍀 My Journey":
                 st.caption("Bring a real role and practice for that specific conversation.")
                 if st.button("Practice an interview", key="journey_interview", use_container_width=True):
                     go_to_page("🎤 Interview Practice")
-                    st.rerun()
 
         with tool2:
             with st.container(border=True):
@@ -887,7 +885,6 @@ if st.session_state.nav_page == "🍀 My Journey":
                 st.caption("Gentle suggestions for skills that could open new doors.")
                 if st.button("Explore skills", key="journey_skills", use_container_width=True):
                     go_to_page("✨ Skills Worth Exploring")
-                    st.rerun()
 
     with right:
         with st.container(border=True):
@@ -896,7 +893,6 @@ if st.session_state.nav_page == "🍀 My Journey":
             st.write("")
             if st.button("Open Career Companion", key="journey_companion", use_container_width=True):
                 go_to_page("💬 Career Companion")
-                st.rerun()
 
         st.write("")
         with st.container(border=True):
@@ -1032,7 +1028,6 @@ elif st.session_state.nav_page == "💼 Job Matches":
                     if st.button("🎤 Prepare for interview", key=f"prepare_interview_{index}", use_container_width=True):
                         prepare_interview_from_job(job)
                         go_to_page("🎤 Interview Practice")
-                        st.rerun()
 
 # ============================================================
 # RESUME BUILDER
