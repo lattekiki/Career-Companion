@@ -323,7 +323,6 @@ st.markdown(
         transition: all 0.2s ease !important;
     }
 
-    /* Force button labels and nested elements to solid white */
     .stButton > button, 
     .stButton > button *,
     .stButton > button p,
@@ -390,7 +389,7 @@ if st.session_state.user_profile.get("current_role") == "neondb_owner":
     st.session_state.user_profile["current_role"] = ""
 if st.session_state.user_profile.get("name") == "neondb_owner":
     st.session_state.user_profile["name"] = ""
-# Ensure profile is always a dictionary
+
 if not isinstance(st.session_state.user_profile, dict):
     st.session_state.user_profile = {}
 
@@ -424,13 +423,18 @@ llm = get_llm()
 if "nav_page" not in st.session_state:
     st.session_state.nav_page = "🍀 My Journey"
 
-if "page_radio" not in st.session_state:
-    st.session_state.page_radio = st.session_state.nav_page
-
 if "pending_nav_page" not in st.session_state:
     st.session_state.pending_nav_page = None
 
-# Ensure chat_messages is always initialized before rendering components
+# SYNC PENDING NAVIGATION BEFORE WIDGET RENDERING
+if st.session_state.get("pending_nav_page"):
+    st.session_state.page_radio = st.session_state.pending_nav_page
+    st.session_state.nav_page = st.session_state.pending_nav_page
+    st.session_state.pending_nav_page = None
+
+if "trigger_ai_response" not in st.session_state:
+    st.session_state.trigger_ai_response = False
+
 if "chat_messages" not in st.session_state:
     db_history = load_chat_history(USER_ID)
     if db_history:
@@ -455,12 +459,12 @@ if "emotional_label" not in st.session_state:
     st.session_state.emotional_label = "Neutral"
 
 # ============================================================
-# NAVIGATION
+# NAVIGATION FUNCTION
 # ============================================================
 
 def go_to_page(page_name):
+    st.session_state.nav_page = page_name
     st.session_state.pending_nav_page = page_name
-    st.session_state.page_radio = page_name
     st.rerun()
 
 # ============================================================
@@ -650,12 +654,6 @@ HUMANISTIC CONVERSATION RULES
 # SIDEBAR
 # ============================================================
 
-if st.session_state.get("pending_nav_page"):
-    destination = st.session_state.pending_nav_page
-    st.session_state.nav_page = destination
-    st.session_state.page_radio = destination
-    st.session_state.pending_nav_page = None
-
 with st.sidebar:
     raw_name = str(st.session_state.user_profile.get("name") or "").strip()
     user_disp_name = raw_name.split()[0] if raw_name else "there"
@@ -735,7 +733,6 @@ with st.sidebar:
         key="sb_skills"
     )
 
-    # Save Profile to Neon DB when updated
     if st.button("Save Profile", type="primary", use_container_width=True):
         updated_profile = {
             "name": val_name,
@@ -767,7 +764,6 @@ if st.session_state.nav_page == "🍀 My Journey":
 
     job_count = len(ranked_jobs)
     
-    # Safe fallback for NoneType skills string parsing
     skills_text = profile.get("skills") or ""
 
     skill_count = len([
@@ -798,7 +794,6 @@ if st.session_state.nav_page == "🍀 My Journey":
         unsafe_allow_html=True,
     )
 
-    # ---------- Hero Card ----------
     target_role_display = profile.get("target_role") if profile.get("target_role") else "Your next role"
     st.html(
         f"""
@@ -916,6 +911,23 @@ if st.session_state.nav_page == "🍀 My Journey":
 elif st.session_state.nav_page == "💬 Career Companion":
     st.markdown('<div class="page-title">💬 Career Companion</div>', unsafe_allow_html=True)
     st.markdown('<div class="page-subtitle">A real conversation about your career — adapted to where you are, including how you\'re feeling.</div>', unsafe_allow_html=True)
+
+    if st.session_state.get("trigger_ai_response", False):
+        st.session_state.trigger_ai_response = False
+        latest_user_msg = st.session_state.chat_messages[-1]["content"]
+        
+        with st.spinner("Listening..."):
+            new_score, new_label = analyze_burnout_and_sentiment(latest_user_msg, st.session_state.chat_messages)
+
+        st.session_state.sentiment_score = new_score
+        st.session_state.emotional_label = new_label
+        save_chat_message(USER_ID, "user", latest_user_msg, new_score, new_label)
+
+        with st.spinner("Thinking with you..."):
+            ai_reply = generate_adaptive_ai_response(st.session_state.chat_messages, new_score, new_label)
+
+        st.session_state.chat_messages.append({"role": "assistant", "content": ai_reply})
+        save_chat_message(USER_ID, "assistant", ai_reply, new_score, new_label)
 
     for msg in st.session_state.chat_messages:
         role = "user" if msg["role"] == "user" else "assistant"
