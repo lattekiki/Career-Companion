@@ -121,17 +121,26 @@ st.markdown(
         line-height: 1.45;
     }
 
-    /* Radio Navigation Pill Buttons */
+    /* Radio Navigation Pill Buttons - Equal Width Alignment */
     [data-testid="stSidebar"] div[role="radiogroup"] {
         gap: 8px;
+        display: flex;
+        flex-direction: column;
     }
 
-    [data-testid="stSidebar"] div[role="radiogroup"] label {
+    [data-testid="stSidebar"] div[role="radiogroup"] > label {
+        width: 100% !important;
+        display: flex !important;
+        box-sizing: border-box !important;
         background: rgba(255, 255, 255, 0.35) !important;
         border-radius: 18px !important;
         padding: 10px 16px !important;
         border: none !important;
         transition: all 0.2s ease-in-out !important;
+    }
+
+    [data-testid="stSidebar"] div[role="radiogroup"] > label > div {
+        width: 100% !important;
     }
 
     [data-testid="stSidebar"] div[role="radiogroup"] label p {
