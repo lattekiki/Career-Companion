@@ -3,6 +3,8 @@ import re
 import json
 import time
 import threading
+import subprocess
+import sys
 from urllib.parse import urljoin
 
 
@@ -35,6 +37,13 @@ def get_afriwork_jobs(url=AFRIWORK_URL):
     print("\n" + "=" * 70)
     print("AFRIWORK JOB SCRAPER")
     print("=" * 70)
+
+    # Automatically install Playwright browser binaries if missing on Streamlit Cloud
+    try:
+        print("Checking/Installing Playwright browser binaries...")
+        subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=False)
+    except Exception as e:
+        print(f"Browser auto-install notice: {e}")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
