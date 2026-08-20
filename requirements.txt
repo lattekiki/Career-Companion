@@ -11,4 +11,3 @@ reportlab
 beautifulsoup4
 audio-recorder-streamlit
 playwright>=1.40.0
-greenlet==3.0.3
