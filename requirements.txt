@@ -3,3 +3,6 @@ langchain
 langchain-groq
 python-dotenv
 pydantic
+bcrypt
+sqlalchemy
+psycopg2-binary
