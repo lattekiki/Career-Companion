@@ -160,16 +160,21 @@ st.markdown(
         overflow: hidden !important;
     }
 
-    [data-testid="stSidebar"] input {
-        background: transparent !important;
+    /* FIX FOR DARK INPUT TEXT VISIBILITY */
+    [data-testid="stSidebar"] input,
+    [data-testid="stSidebar"] textarea,
+    [data-testid="stSidebar"] select {
+        background: #FFFFFF !important;
         border: none !important;
-        color: #1F1938 !important;
+        color: #111111 !important;
+        -webkit-text-fill-color: #111111 !important;
         font-weight: 600 !important;
         padding: 10px 14px !important;
     }
 
     [data-testid="stSidebar"] input::placeholder {
         color: #8C82B0 !important;
+        -webkit-text-fill-color: #8C82B0 !important;
     }
 
     [data-testid="stSidebar"] h3 {
