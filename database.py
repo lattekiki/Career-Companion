@@ -32,18 +32,27 @@ load_dotenv()
 
 
 def get_database_url():
-    """Safely fetch DATABASE_URL from .env or st.secrets."""
+    """Safely fetch DATABASE_URL with error visualization."""
+    # 1. Try local environment
     url = os.getenv("DATABASE_URL")
-    if not url:
-        try:
-            # st.secrets is a mapping; check if key exists
-            if "DATABASE_URL" in st.secrets:
-                url = st.secrets["DATABASE_URL"]
-        except Exception as e:
-            print(f"DEBUG: Error accessing st.secrets: {e}")
-            url = None
-            
-    return url
+    if url:
+        return url
+
+    # 2. Try Streamlit secrets
+    try:
+        if hasattr(st, "secrets") and "DATABASE_URL" in st.secrets:
+            return st.secrets["DATABASE_URL"]
+    except Exception as e:
+        st.sidebar.error(f"Secrets Error: {e}")
+
+    # 3. If everything fails, show debugging info on the sidebar
+    st.sidebar.warning("DEBUG: st.secrets contents check:")
+    try:
+        st.sidebar.write(list(st.secrets.keys()))
+    except Exception:
+        st.sidebar.write("st.secrets is completely empty or unavailable.")
+        
+    return None
 
 
 DATABASE_URL = get_database_url()
